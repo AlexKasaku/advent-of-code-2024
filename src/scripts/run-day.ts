@@ -55,6 +55,9 @@ const { values, positionals } = parseArgs({
     },
     input: {
       type: 'string'
+    },
+    e: {
+      type: 'boolean'
     }
   },
   strict: true,
@@ -63,6 +66,6 @@ const { values, positionals } = parseArgs({
 
 const day = Number(positionals[2] ?? '');
 const isDevMode = values['dev'];
-const defaultInput = values['input'];
+const defaultInput = values['input'] ?? (values['e'] ? 'example' : undefined);
 
 runDay(day, isDevMode, defaultInput)
