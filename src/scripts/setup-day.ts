@@ -46,8 +46,6 @@ const setupDay = async (day: number) => {
   try {
     await mkdir(dir)
     await mkdir(dirInputs)
-    console.log(dirInputs.href);
-    console.log(new URL(`example.txt`, dirInputs.href));
     await Bun.write(new URL(`example.txt`, dirInputs.href), '')
     await Bun.write(new URL(`input.txt`, dirInputs.href), input ?? '')
     await Bun.write(new URL(`index.ts`, dir.href), generateTemplate(day))

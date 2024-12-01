@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import type { Day } from 'models'
+import type { Day } from 'types'
 
 type Transform<Res, Input = string> = (s: Input) => Res
 
