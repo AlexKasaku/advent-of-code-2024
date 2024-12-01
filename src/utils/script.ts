@@ -15,21 +15,22 @@ export const validateDay = (day: number | string) => {
 }
 
 export const generateTemplate = (day: number) => `import { parseLines, readInput } from 'io'
-
-const debugMode = true;
-const debug = (...params: any[]) => debugMode && console.log(...params);
-const log = (...params: any[]) => console.log(...params);
+import { log, debug } from 'log'
 
 const input = await readInput('${formatDayName(day)}')
 
+const parseInput = () => {
+  return parseLines(input)
+}
+
 export const part1 = () => {
-  const lines = parseLines(input)
+  const lines = parseInput()
   // your code goes here
   return lines.length
 }
 
 export const part2 = () => {
-  const lines = parseLines(input)
+  const lines = parseInput()
   // your code goes here
   return lines.length
 }

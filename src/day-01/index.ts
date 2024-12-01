@@ -1,16 +1,16 @@
 import { parseLines, readInput } from 'io'
 import toSum from 'utils/toSum';
 
-const debugMode = true;
-const debug = (...params: any[]) => debugMode && console.log(...params);
-const log = (...params: any[]) => console.log(...params);
-
 const input = await readInput('day-01');
 
-const toNumbers = (line: string): [number, number] => line.split('   ').map(x => parseInt(x)) as [number, number];
+const toNumbers = (line: string): [number, number] => line.split(/\s+/).map(Number) as [number, number];
+
+const parseInput = () => {
+  return parseLines(input)
+}
 
 export const part1 = () => {
-  const lines = parseLines(input)
+  const lines = parseInput();
   
   const leftList: number[] = [];
   const rightList: number[] = [];
@@ -29,7 +29,7 @@ export const part1 = () => {
 }
 
 export const part2 = () => {
-  const lines = parseLines(input)
+  const lines = parseInput();
   
   const leftList: number[] = [];
   const rightMap: Map<number, number> = new Map();

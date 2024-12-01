@@ -1,15 +1,26 @@
+import chalk from 'chalk';
 import type { Day } from 'models'
 
 type Transform<Res, Input = string> = (s: Input) => Res
 
+let defaultFile = 'input';
+
+export const setDefaultFile = (fileName: string ) => defaultFile = fileName;
+
 export const readFile = async (filepath: string) => {
   const file = Bun.file(filepath)
+
+  if (!(await file.exists())) {
+    console.log(chalk.red(`File ${filepath} does not exist!`))
+    throw 'FileNotFound';
+  }
+
   const text = await file.text()
   return text.trim()
 }
 
-export const readInput = async (dir: Day, fileName: string = 'input') => {
-  const filepath = `./src/${dir}/${fileName}.txt`
+export const readInput = async (dir: Day, fileName?: string) => {
+  const filepath = `./src/${dir}/${fileName ?? defaultFile}.txt`
   return readFile(filepath)
 }
 
