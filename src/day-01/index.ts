@@ -1,4 +1,5 @@
 import { parseLines, readInput } from 'io'
+import toSum from 'utils/toSum';
 
 const debugMode = true;
 const debug = (...params: any[]) => debugMode && console.log(...params);
@@ -6,54 +7,39 @@ const log = (...params: any[]) => console.log(...params);
 
 const input = await readInput('day-01');
 
+const toNumbers = (line: string): [number, number] => line.split('   ').map(x => parseInt(x)) as [number, number];
+
 export const part1 = () => {
   const lines = parseLines(input)
   
-  const list1: number[] = [];
-  const list2: number[] = [];
+  const leftList: number[] = [];
+  const rightList: number[] = [];
   
-  lines.forEach(line => {
-    const split = line.split('   ');
-    list1.push(parseInt(split[0]));
-    list2.push(parseInt(split[1]));
+  lines.map(toNumbers).forEach(([left, right]) => {
+    leftList.push(left);
+    rightList.push(right);
   });
 
-  list1.sort();
-  list2.sort();
+  leftList.sort();
+  rightList.sort();
 
-  let totalDistance = 0;
+  const totalDistance = leftList.map((x, i) => Math.abs(x - rightList[i])).reduce(toSum);
 
-  for (let index = 0; index < list1.length; index++) {
-    const diff = Math.abs(list2[index] - list1[index]);
-    totalDistance += diff;
-  }
-
-  return totalDistance
+  return totalDistance;
 }
 
 export const part2 = () => {
   const lines = parseLines(input)
   
-  const list1: number[] = [];
+  const leftList: number[] = [];
   const rightMap: Map<number, number> = new Map();
   
-  lines.forEach(line => {
-    const split = line.split('   ');
-    list1.push(parseInt(split[0]));
-    
-    const rightNum = parseInt(split[1]);
-    if (rightMap.has(rightNum))
-      rightMap.set(rightNum, rightMap.get(rightNum)! + 1);
-    else
-      rightMap.set(rightNum, 1)
+  lines.map(toNumbers).forEach(([left, right]) => {
+    leftList.push(left);
+    rightMap.set(right, (rightMap.get(right) ?? 0) + 1);
   });
 
-  let totalSimilarity = 0;
-
-  for (let index = 0; index < list1.length; index++) {
-    const similar = list1[index] * (rightMap.get(list1[index]) ?? 0);
-    totalSimilarity += similar;
-  }
+  const totalSimilarity = leftList.map(x => x * (rightMap.get(x) ?? 0)).reduce(toSum);
 
   return totalSimilarity;
 }
