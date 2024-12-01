@@ -13,6 +13,7 @@ const setupDay = async (day: number) => {
   }
 
   const dir = new URL(`../${formatDayName(day)}/`, import.meta.url)
+  const dirInputs = new URL(`./inputs/`, dir);
 
   if (existsSync(dir)) {
     console.log(chalk.red(`Day ${day} already exists!`))
@@ -44,7 +45,11 @@ const setupDay = async (day: number) => {
 
   try {
     await mkdir(dir)
-    await Bun.write(new URL(`input.txt`, dir.href), input ?? '')
+    await mkdir(dirInputs)
+    console.log(dirInputs.href);
+    console.log(new URL(`example.txt`, dirInputs.href));
+    await Bun.write(new URL(`example.txt`, dirInputs.href), '')
+    await Bun.write(new URL(`input.txt`, dirInputs.href), input ?? '')
     await Bun.write(new URL(`index.ts`, dir.href), generateTemplate(day))
 
     console.log(chalk.green.bold(`✅ Day ${formatDay(day)} set up!`))

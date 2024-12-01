@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import { enableDebug } from 'log'
 import { formatDay, formatDayName, formatPerformance, validateDay, withPerformance } from 'utils/script'
 import { parseArgs } from "util"
-import { setDefaultFile } from 'io'
+import { getDefaultFile, setDefaultFile } from 'io'
 
 const runDay = async (day: number, isDevMode?: boolean, defaultInput?: string) => {
   if (!validateDay(day)) {
@@ -32,6 +32,15 @@ const runDay = async (day: number, isDevMode?: boolean, defaultInput?: string) =
 
   if (!isDevMode) 
     console.clear()
+
+  console.log(
+    '💻',
+    'Dev Mode:',
+    chalk.cyanBright(isDevMode ? 'Yes' : 'No'),
+    'Default File:',
+    chalk.cyanBright(getDefaultFile()),
+  )    
+  console.log();
 
   console.log(
     '🌲',

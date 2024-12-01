@@ -5,6 +5,7 @@ type Transform<Res, Input = string> = (s: Input) => Res
 
 let defaultFile = 'input';
 
+export const getDefaultFile = () => defaultFile;
 export const setDefaultFile = (fileName: string ) => defaultFile = fileName;
 
 export const readFile = async (filepath: string) => {
@@ -20,7 +21,7 @@ export const readFile = async (filepath: string) => {
 }
 
 export const readInput = async (dir: Day, fileName?: string) => {
-  const filepath = `./src/${dir}/${fileName ?? defaultFile}.txt`
+  const filepath = `./src/${dir}/inputs/${fileName ?? defaultFile}.txt`
   return readFile(filepath)
 }
 
