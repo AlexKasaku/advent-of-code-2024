@@ -1,23 +1,20 @@
 import { parseLines, readInput } from 'io'
-import { debug, log } from 'log'
 import toSum from 'utils/toSum'
 
 const input = await readInput('day-03')
 
-type InstructionType = 'mul' | 'do' | 'dont'
 type Instruction = {
-  type: InstructionType
-  val1?: number
-  val2?: number
+  type: 'do' | 'dont'
+} | {
+  type: 'mul'
+  val1: number
+  val2: number
 }
 
-const parseInput = (mulOnly: boolean): Instruction[] => {
+const parseInput = (): Instruction[] => {
   const text = parseLines(input).join()
 
-  const matches = (mulOnly
-    ? text.match(/mul\(\d{1,3},\d{1,3}\)/g)
-    : text.match(/(mul\(\d{1,3},\d{1,3}\))|(do\(\))|(don't\(\))/g)
-  ) ?? []
+  const matches = text.match(/(mul\(\d{1,3},\d{1,3}\))|(do\(\))|(don't\(\))/g) ?? []
 
   return matches.map((x) => {
     if (x === 'do()') { return { type: 'do' } }
@@ -29,19 +26,24 @@ const parseInput = (mulOnly: boolean): Instruction[] => {
 }
 
 export const part1 = () => {
-  const instructions = parseInput(true)
+  const instructions = parseInput()
 
-  return instructions.map((x) => x.val1! * x.val2!).reduce(toSum)
+  return instructions.filter((i) => i.type === 'mul').map((x) => x.val1 * x.val2).reduce(toSum)
 }
 
 export const part2 = () => {
-  const instructions = parseInput(false)
+  const instructions = parseInput()
 
   let enabled = true
   let total = 0
 
   instructions.forEach((instruction) => {
-    if (instruction.type === 'mul' && enabled) { total += instruction.val1! * instruction.val2! } else if (instruction.type === 'do') { enabled = true } else if (instruction.type === 'dont') { enabled = false }
+    if (instruction.type === 'mul' && enabled) 
+      total += instruction.val1 * instruction.val2
+    else if (instruction.type === 'do') 
+      enabled = true
+    else if (instruction.type === 'dont') 
+      enabled = false
   })
 
   return total
