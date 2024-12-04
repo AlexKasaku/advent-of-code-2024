@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { EOL } from 'os';
 import type { Day } from 'types'
 
 type Transform<Res, Input = string> = (s: Input) => Res
