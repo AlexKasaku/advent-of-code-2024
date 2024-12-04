@@ -9,22 +9,12 @@ export type Space = {
 };
 
 const parseInput = () => {
-  const lines = parseLines(input);
-
-  debug(lines.length)
-  
-  const values = lines.map((line) => line.split(''));
+  const values = parseLines(input).map((line) => line.split(''));
 
   return new Grid<Space>(values.length, values[0].length, ({ x, y }) => ({
     char: values[y][x],
   }));
 }
-
-const renderGrid = (grid: Grid<Space>): void => {
-  for (const row of grid.Values)
-    debug(row.reduce((a, b) => a + b.char, ''));
-  debug();
-};
 
 export const part1 = () => {
   const grid = parseInput()
@@ -39,10 +29,7 @@ export const part1 = () => {
         const word = grid.Values[curY][curX]!.char + grid.getAllInDirection({x: curX, y: curY}, direction, 3).map(space => space!.char).join('');
         
         if (word === 'XMAS')
-        {
-          //debug(`XMAS found at X: ${curX} Y: ${curY} Direction: ${direction}`);
           wordsFound++;
-        }
       });
     }
   }
@@ -51,7 +38,33 @@ export const part1 = () => {
 }
 
 export const part2 = () => {
-  const lines = parseInput()
-  // your code goes here
-  return 0
+  const grid = parseInput()
+  
+  let wordsFound = 0;
+
+  const getWord = (x: number, y:number, direction: Direction) => 
+    y < grid.Height && x < grid.Width 
+      ? grid.Values[y][x]!.char + grid.getAllInDirection({x, y}, direction, 2).map(space => space!.char).join('') 
+      : '';
+
+  const isMatch = (word1: string, word2: string) => word1 === 'MAS' && word1 === word2;
+
+  for (let curY = 0; curY < grid.Height; curY++) {
+    for (let curX = 0; curX < grid.Width; curX++) {
+        
+        if (isMatch(getWord(curX,curY,'SE'), getWord(curX, curY+2,'NE')))
+          wordsFound++;
+
+        if (isMatch(getWord(curX,curY,'SE'), getWord(curX+2, curY,'SW')))
+          wordsFound++;
+        
+        if (isMatch(getWord(curX,curY,'SW'), getWord(curX, curY+2,'NW')))
+          wordsFound++;
+          
+        if (isMatch(getWord(curX,curY,'NE'), getWord(curX+2, curY,'NW')))
+          wordsFound++;          
+    }
+  }
+
+  return wordsFound
 }
