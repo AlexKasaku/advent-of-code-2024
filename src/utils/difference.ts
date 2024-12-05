@@ -1,5 +1,5 @@
 /**
- * Returns elements one array that cannot be found in a second array
+ * Returns elements from first array that cannot be found in a second array
  * @param one The array to pick elements from
  * @param two The array to compare against
  * @returns The unique elements from array one that do not appear in array two

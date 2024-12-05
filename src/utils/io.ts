@@ -23,7 +23,7 @@ export const readFile = async (filepath: string) => {
 
 export const readInput = async (dir: Day, fileName?: string) => {
   const filepath = `./src/${dir}/inputs/${fileName ?? defaultFile}.txt`
-  return readFile(filepath)
+  return (await readFile(filepath)).replaceAll('\r\n', '\n').replaceAll('\r','\n');
 }
 
 export const parseLines = <T = string>(
