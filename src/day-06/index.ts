@@ -101,7 +101,7 @@ export const part2 = () => {
   renderGrid( grid, guard );
 
   // Find candidates for blocking using all visited spaces, except where the guard started
-  const blockingCandidates = grid.Values.flat().filter(x => x.visited && !(x.x === initialGuardPosition.x && x.y === initialGuardPosition.y));
+  let blockingCandidates = grid.Values.flat().filter(x => x.visited && !(x.x === initialGuardPosition.x && x.y === initialGuardPosition.y));
 
   // Try out blocking candidates and see if it causes a loop
   let causesLoop: Space[] = [];
@@ -111,8 +111,7 @@ export const part2 = () => {
 
   blockingCandidates.forEach( candidate => {
 
-    // Reset visit state and guard state
-    grid.Values.flat().forEach(space => space.visited = false);
+    // Reset guard state. We no longer need to track visited spaces, as we're just interested in previous states.
     guard = {...initialGuardPosition};
     hasLeftGrid = false;
 
@@ -132,8 +131,6 @@ export const part2 = () => {
         // Have we been here before?
         if (wasPreviousState(guard)) {
 
-          //renderGrid(grid, guard, candidate);
-          //debug(`Space x = ${candidate.x}, y = ${candidate.y} will cause a loop when guard is at x = ${guard.x}, y = ${guard.y}`);
           causesLoop.push(candidate);
 
           // Unblock candidate space
@@ -152,7 +149,7 @@ export const part2 = () => {
           turned = true;
           break;
         }
-        space!.visited = true;
+
         guard.x = space!.x;
         guard.y = space!.y;
       }
