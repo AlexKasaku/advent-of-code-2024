@@ -101,24 +101,7 @@ export const part2 = () => {
   renderGrid( grid, guard );
 
   // Find candidates for blocking using all visited spaces, except where the guard started
-  //const blockingCandidates = grid.Values.flat().filter(x => x.visited && x.x != initialGuardPosition.x && x.y != initialGuardPosition.y);
-
-  // Find candidates using all unblocked spaces! This can surely be reduced down to spaces visited or next to previous visited spaces
-  let blockingCandidates: Set<Space> = new Set<Space>();
-  grid.Values.flat().forEach(space => {
-    if (!space.isBlocked && space.visited) {
-
-      if (!blockingCandidates.has(space) && !(space.x == initialGuardPosition.x && space.y == initialGuardPosition.y))
-        blockingCandidates.add(space);
-
-      const adjacent = grid.getNeighbours(space, true);
-      adjacent.forEach(adjacentSpace => {
-        if (!adjacentSpace.isBlocked && !blockingCandidates.has(adjacentSpace) && !(space.x == initialGuardPosition.x && space.y == initialGuardPosition.y))
-          blockingCandidates.add(adjacentSpace);
-      })
-    }
-  });
-  //debug(blockingCandidates);
+  const blockingCandidates = grid.Values.flat().filter(x => x.visited && !(x.x === initialGuardPosition.x && x.y === initialGuardPosition.y));
 
   // Try out blocking candidates and see if it causes a loop
   let causesLoop: Space[] = [];
