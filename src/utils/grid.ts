@@ -113,6 +113,33 @@ export class Grid<T> {
     return values;
   };
 
+  findInDirection = (
+    { x, y }: Position,
+    direction: Direction,
+    predicate: (space: T) => boolean,
+    returnSpaceBeforeMatch: boolean
+  ): T | undefined => {
+    // Start at the position and keep testing in direction until we run out of grid
+    // or find space that matches predicate.
+    const deltaX = direction.indexOf('W') > -1 ? -1 : direction.indexOf('E') > -1 ? 1 : 0;
+    const deltaY = direction.indexOf('N') > -1 ? -1 : direction.indexOf('S') > -1 ? 1 : 0;
+
+    let curX = x, curY = y;
+    let position: T | undefined = undefined;
+    do {
+      curX += deltaX;
+      curY += deltaY;
+      
+      position = this.get({ x: curX, y: curY });
+      if (position !== undefined && predicate(position))
+        return returnSpaceBeforeMatch ? this.get({ x: curX - deltaX, y: curY - deltaY }) : position;
+
+    } while (position !== undefined);
+
+    // Failed to find item
+    return undefined;
+  };
+
   get = ({ x, y }: Position): T | undefined => this.Values[y]?.[x];
   set = ({ x, y }: Position, value: T): void => {
     this.Values[y][x] = value;

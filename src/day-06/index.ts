@@ -104,7 +104,7 @@ export const part2 = () => {
   let blockingCandidates = grid.Values.flat().filter(x => x.visited && !(x.x === initialGuardPosition.x && x.y === initialGuardPosition.y));
 
   // Try out blocking candidates and see if it causes a loop
-  let causesLoop: Space[] = [];
+  let causesLoop: number = 0;
 
   // We'll determine a loop by recording each space and facing. If guard is ever back in a space already visited facing same direction, it'll be a loop
   const guardStateToString = ({x,y,facing}: Guard) => `${x},${y},${facing}`;
@@ -124,49 +124,32 @@ export const part2 = () => {
     candidate.isBlocked = true;
 
     // Run grid to see if we loop
-    while (!hasLeftGrid) {
-      const spacesToMove = grid.getAllInDirection(guard, guard.facing);
-      let turned = false;
-      for(const space of spacesToMove) {
-        // Have we been here before?
-        if (wasPreviousState(guard)) {
+    while (true) {
+      const lastUnblockedSpace = grid.findInDirection(guard, guard.facing, s => s.isBlocked, true);
 
-          causesLoop.push(candidate);
+      // This direction goes off the grid, it doesn't loop
+      if (lastUnblockedSpace == undefined)
+        break;
 
-          // Unblock candidate space
-          candidate.isBlocked = false;
+      // If guard has been here before in this direction, stop.
+      if (wasPreviousState(guard)) {
+        causesLoop++;
+        break;
+      };
 
-          // Break right out of candidate test
-          return;
-        };
+      // We're not off grid and haven't been here before. Turn and move on.
 
-        // Haven't been here before, record it.
-        addState(guard);
+      // Haven't been here before, record it.
+      addState(guard);
 
-        // Carry on moving
-        if (space?.isBlocked) {
-          guard.facing = turnRight(guard.facing);
-          turned = true;
-          break;
-        }
-
-        guard.x = space!.x;
-        guard.y = space!.y;
-      }
-
-      if (!turned)
-        hasLeftGrid = true;
+      guard.facing = turnRight(guard.facing);
+      guard.x = lastUnblockedSpace.x;
+      guard.y = lastUnblockedSpace.y;
     }
 
-    //renderGrid(grid, guard, candidate);
-
-    // Unblock candidate space
+    // Unblock candidate space ready for next test.
     candidate.isBlocked = false;
-
-    // Left grid, so let's move on to next candidate
   })
 
-  debug(causesLoop);
-
-  return causesLoop.length;
+  return causesLoop;
 }
