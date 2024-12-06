@@ -1,9 +1,9 @@
-import { createAndInitArray } from './createArray';
+import { createAndInitArray } from './createArray'
 
 export type Position = {
-  x: number;
-  y: number;
-};
+  x: number
+  y: number
+}
 
 export const allDirections = [
   'N',
@@ -14,51 +14,51 @@ export const allDirections = [
   'SW',
   'W',
   'NW',
-] as const;
-export type Direction = (typeof allDirections)[number];
+] as const
+export type Direction = (typeof allDirections)[number]
 
-export const cardinalDirections = ['N', 'E', 'S', 'W'] as const;
-export type CardinalDirection = (typeof cardinalDirections)[number];
+export const cardinalDirections = ['N', 'E', 'S', 'W'] as const
+export type CardinalDirection = (typeof cardinalDirections)[number]
 
 export const turnLeft = (direction: CardinalDirection): CardinalDirection =>
-  cardinalDirections[(4 + cardinalDirections.indexOf(direction) - 1) % 4];
+  cardinalDirections[(4 + cardinalDirections.indexOf(direction) - 1) % 4]
 export const turnRight = (direction: CardinalDirection): CardinalDirection =>
-  cardinalDirections[(4 + cardinalDirections.indexOf(direction) + 1) % 4];
+  cardinalDirections[(4 + cardinalDirections.indexOf(direction) + 1) % 4]
 
 export const manhattanDistance = (a: Position, b: Position) =>
-  Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
 
 export class Grid<T> {
-  Values: T[][];
-  readonly Width: number;
-  readonly Height: number;
+  Values: T[][]
+  readonly Width: number
+  readonly Height: number
 
   constructor(
     height: number,
     width: number,
     initializationCallback?: (position: Position) => T,
   ) {
-    this.Width = width;
-    this.Height = height;
+    this.Width = width
+    this.Height = height
 
     this.Values = createAndInitArray(
       (y, x) => initializationCallback?.({ x, y }),
       height,
       width,
-    );
+    )
   }
 
   getNeighbours = (point: Position, orthagonal: boolean = true) => {
-    const neighbours: T[] = [];
+    const neighbours: T[] = []
     this.forEachNeighbour(
       point,
       (value) => {
-        neighbours.push(value);
+        neighbours.push(value)
       },
       orthagonal,
-    );
-    return neighbours;
-  };
+    )
+    return neighbours
+  }
 
   // Raise a callback for each neighbour to the provided position. Note that if T can be undefined
   // then the callback won't be rasied for that position.
@@ -71,15 +71,14 @@ export class Grid<T> {
       for (let y = point.y - 1; y <= point.y + 1; y++) {
         // Skip non-adjacent and yourself
         if (
-          (orthagonal && Math.abs(point.x - x) + Math.abs(point.y - y) > 1) ||
-          (point.x == x && point.y == y)
-        )
-          continue;
+          (orthagonal && Math.abs(point.x - x) + Math.abs(point.y - y) > 1)
+          || (point.x === x && point.y === y)
+        ) { continue }
 
-        if (this.Values?.[y]?.[x]) callback(this.Values[y][x], { x, y });
+        if (this.Values?.[y]?.[x]) { callback(this.Values[y][x], { x, y }) }
       }
     }
-  };
+  }
 
   getAllInDirection = (
     { x, y }: Position,
@@ -87,31 +86,25 @@ export class Grid<T> {
     count?: number,
   ) => {
     // Start at the position and keep moving in direction acquiring cells, until we run out of grid.
-    const deltaX =
-      direction.indexOf('W') > -1 ? -1 : direction.indexOf('E') > -1 ? 1 : 0;
-    const deltaY =
-      direction.indexOf('N') > -1 ? -1 : direction.indexOf('S') > -1 ? 1 : 0;
+    const deltaX
+      = direction.includes('W') ? -1 : direction.includes('E') ? 1 : 0
+    const deltaY
+      = direction.includes('N') ? -1 : direction.includes('S') ? 1 : 0
 
-    const values = [];
-    let curX = x,
-      curY = y;
-    let position: T | undefined = undefined;
-    do {
-      values.push(position);
+    const values = []
+    let curX = x + deltaX; let curY = y + deltaY
+    let position: T | undefined = this.get({ x: curX, y: curY })
 
-      curX += deltaX;
-      curY += deltaY;
-      position = this.get({ x: curX, y: curY });
-    } while (
-      position !== undefined &&
-      (count === undefined || values.length <= count)
-    );
+    while (position !== undefined && (count === undefined || values.length <= count)) {
+      values.push(position)
 
-    // Remove first element
-    values.shift();
+      curX += deltaX
+      curY += deltaY
+      position = this.get({ x: curX, y: curY })
+    }
 
-    return values;
-  };
+    return values
+  }
 
   findInDirection = (
     { x, y }: Position,
@@ -121,32 +114,30 @@ export class Grid<T> {
   ): T | undefined => {
     // Start at the position and keep testing in direction until we run out of grid
     // or find space that matches predicate.
-    const deltaX = direction.indexOf('W') > -1 ? -1 : direction.indexOf('E') > -1 ? 1 : 0;
-    const deltaY = direction.indexOf('N') > -1 ? -1 : direction.indexOf('S') > -1 ? 1 : 0;
+    const deltaX = direction.includes('W') ? -1 : direction.includes('E') ? 1 : 0
+    const deltaY = direction.includes('N') ? -1 : direction.includes('S') ? 1 : 0
 
-    let curX = x, curY = y;
-    let position: T | undefined = undefined;
+    let curX = x; let curY = y
+    let position: T | undefined
     do {
-      curX += deltaX;
-      curY += deltaY;
-      
-      position = this.get({ x: curX, y: curY });
-      if (position !== undefined && predicate(position))
-        return returnSpaceBeforeMatch ? this.get({ x: curX - deltaX, y: curY - deltaY }) : position;
+      curX += deltaX
+      curY += deltaY
 
-    } while (position !== undefined);
+      position = this.get({ x: curX, y: curY })
+      if (position !== undefined && predicate(position)) { return returnSpaceBeforeMatch ? this.get({ x: curX - deltaX, y: curY - deltaY }) : position }
+    } while (position !== undefined)
 
     // Failed to find item
-    return undefined;
-  };
+    return undefined
+  }
 
-  get = ({ x, y }: Position): T | undefined => this.Values[y]?.[x];
+  get = ({ x, y }: Position): T | undefined => this.Values[y]?.[x]
   set = ({ x, y }: Position, value: T): void => {
-    this.Values[y][x] = value;
-  };
+    this.Values[y][x] = value
+  }
 
   getSegment = ({ x, y }: Position, width: number, height: number) =>
-    this.Values.slice(y, y + height).map((row) => row.slice(x, x + width));
+    this.Values.slice(y, y + height).map((row) => row.slice(x, x + width))
 
   updateEachInSegment = (
     { x, y }: Position,
@@ -155,12 +146,11 @@ export class Grid<T> {
     callback: (value: T) => T,
   ): void => {
     for (let curY = y; curY < y + height; curY++) {
-      for (let curX = x; curX < x + width; curX++)
-        this.Values[curY][curX] = callback(this.Values[curY][curX]);
+      for (let curX = x; curX < x + width; curX++) { this.Values[curY][curX] = callback(this.Values[curY][curX]) }
     }
-  };
+  }
 
   log = () => {
-    console.dir(this.Values, { depth: null });
-  };
+    console.dir(this.Values, { depth: null })
+  }
 }
