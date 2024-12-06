@@ -5,6 +5,5 @@ export default matijaoe({
     'no-console': 'off',
     'no-nested-ternary': 'off',
     'no-unmodified-loop-condition': 'off',
-    'semi-style': 'end',
   },
 })

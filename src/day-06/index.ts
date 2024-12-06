@@ -114,7 +114,7 @@ export const part2 = () => {
     guardStates = new Set<string>([...guardStateToString(guard)])
 
     // Add block
-    candidate.isBlocked = true;
+    candidate.isBlocked = true
 
     // Run grid to see if we loop
     while (true) {
