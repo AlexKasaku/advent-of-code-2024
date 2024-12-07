@@ -51,10 +51,12 @@ const setupDay = async (day: number) => {
     await Bun.write(new URL(`index.ts`, dir.href), generateTemplate(day))
 
     console.log(chalk.green.bold(`✅ Day ${formatDay(day)} set up!`))
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error(chalk.red(err?.message ?? 'Failed to set up day'))
   }
 }
 
+// eslint-disable-next-line no-constant-binary-expression
 const day = Number(Bun.argv[2] ?? '') ?? new Date().getDate()
 setupDay(day)

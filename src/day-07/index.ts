@@ -49,7 +49,7 @@ const isValidResult = ({ result, values }: Equation, withConcatenation: boolean)
 }
 
 export const part1 = () => {
-  const equations = parseInput()
+  const equations = parseInput();
 
   return equations.filter((x) => isValidResult(x, false)).map((x) => x.result).reduce(toSum, 0)
 }

@@ -6,7 +6,7 @@ const greatestCommonDivsor = (a: number, b: number) => {
   b = Math.abs(b);
   let [x, y] = b > a ? [b, a] : [a, b];
 
-  // eslint-disable-next-line no-constant-condition
+   
   while (true) {
     if (y == 0) return x;
     x %= y;

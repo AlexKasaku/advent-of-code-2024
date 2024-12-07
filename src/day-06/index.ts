@@ -42,7 +42,7 @@ const getSpaceChar = ({ x, y, isBlocked, visited }: Space, isGuard: boolean, can
 }
 
 const renderGrid = (grid: Grid<Space>, guard: Guard, candidate?: Space): void => {
-  for (const row of grid.Values) { debug(row.reduce((a, b) => a + getSpaceChar(b, b.x == guard.x && b.y == guard.y, candidate), '')) }
+  for (const row of grid.Values) { debug(row.reduce((a, b) => a + getSpaceChar(b, b.x === guard.x && b.y === guard.y, candidate), '')) }
   debug()
 }
 

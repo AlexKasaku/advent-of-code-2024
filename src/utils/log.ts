@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 let debugMode = false;
 export const enableDebug = () => debugMode = true;

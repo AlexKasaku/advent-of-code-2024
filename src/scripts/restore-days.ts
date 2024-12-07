@@ -19,7 +19,7 @@ const restoreDays = async () => {
       const inputsDir = `${dayPath}/inputs`
 
       // Check if the inputs directory exists and is a directory
-      // eslint-disable-next-line no-await-in-loop
+       
       const stats = await stat(inputsDir)
       if (stats.isDirectory()) {
         // Implement restoring here

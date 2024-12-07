@@ -1,9 +1,19 @@
-import matijaoe from '@matijaoe/eslint-config'
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-export default matijaoe({
-  rules: {
-    'no-console': 'off',
-    'no-nested-ternary': 'off',
-    'no-unmodified-loop-condition': 'off',
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  {files: ["**/*.{js,mjs,cjs,ts}"]},
+  {
+      languageOptions: { globals: globals.browser },
   },
-})
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    rules: {
+      'prefer-const': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
+    }
+  }
+];
