@@ -18,7 +18,7 @@ const parseInput = (): Equation[] => {
   })
 }
 
-const isValidResult = ({ result, values }: Equation): boolean => {
+const isValidResult = ({ result, values }: Equation, withConcatenation: boolean): boolean => {
   // Determine if result can be met with + and * operators
   type State = { total: number; values: number[] }
   const [firstValue, ...lastValues] = values
@@ -30,12 +30,18 @@ const isValidResult = ({ result, values }: Equation): boolean => {
     // Test and push +
     const valueForPlus = currentTotal + nextValue
     if (valueForPlus === result && remainingValues.length === 0) { return true }
-    if (valueForPlus <= result) { states.push({ total: valueForPlus, values: remainingValues }) };
+    if (valueForPlus <= result && remainingValues.length > 0) { states.push({ total: valueForPlus, values: remainingValues }) };
 
     // Test and push *
     const valueForMultiply = currentTotal * nextValue
     if (valueForMultiply === result && remainingValues.length === 0) { return true }
-    if (valueForMultiply <= result) { states.push({ total: valueForMultiply, values: remainingValues }) };
+    if (valueForMultiply <= result && remainingValues.length > 0) { states.push({ total: valueForMultiply, values: remainingValues }) };
+
+    if (withConcatenation) {
+      const valueForConcat = Number.parseInt(currentTotal + nextValue.toString())
+      if (valueForConcat === result && remainingValues.length === 0) { return true }
+      if (valueForConcat <= result && remainingValues.length > 0) { states.push({ total: valueForConcat, values: remainingValues }) };
+    }
   }
 
   // Exhausted attempts, it can't be done
@@ -45,13 +51,11 @@ const isValidResult = ({ result, values }: Equation): boolean => {
 export const part1 = () => {
   const equations = parseInput()
 
-  return equations.filter(isValidResult).map((x) => x.result).reduce(toSum)
-
-  // Tested 7710205770400 which is incorrect
+  return equations.filter((x) => isValidResult(x, false)).map((x) => x.result).reduce(toSum, 0)
 }
 
 export const part2 = () => {
-  const lines = parseInput()
-  // your code goes here
-  return lines.length
+  const equations = parseInput()
+
+  return equations.filter((x) => isValidResult(x, true)).map((x) => x.result).reduce(toSum, 0)
 }
