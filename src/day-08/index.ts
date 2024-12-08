@@ -32,9 +32,35 @@ const parseInput = (): Data => {
 export const part1 = () => {
   const data = parseInput()
 
-  debug(data.nodeMap);
+  const getPositionString = ({ x, y }: Position) => `${x},${y}`;
+  const antiNodePositions = new Set<string>();
 
-  return 0;
+  const addIfValid = ({ x, y }: Position) => {
+    if (x >= 0 && x < data.maxBounds.x && y >= 0 && y < data.maxBounds.y) {
+      antiNodePositions.add(getPositionString({ x, y }))
+    }
+  }
+
+  for (const [char, positions] of data.nodeMap.entries()) {
+
+    // Create pairs of all positions. More efficient to do this as we go but lets keep separate for readability
+    const pairs = positions.flatMap((a, i) => positions.slice(i + 1).map(b => [a, b]));
+
+    for (const [node1, node2] of pairs) {
+      // Each pair creates two antinodes. Calculate them and if they're in the bounds, add them.
+      const deltaX = node2.x - node1.x;
+      const deltaY = node2.y - node1.y;
+
+      const antiNode1 = { x: node1.x - deltaX, y: node1.y - deltaY };
+      const antiNode2 = { x: node2.x + deltaX, y: node2.y + deltaY };
+
+      addIfValid(antiNode1);
+      addIfValid(antiNode2);
+
+    }
+  }
+
+  return antiNodePositions.size;
 }
 
 export const part2 = () => {
