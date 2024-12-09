@@ -86,9 +86,7 @@ const getStartOfNextFile = (disk: Disk, index: number): number => {
 export const part2 = () => {
   const { disk, spaces, spaceChunks } = parseInput()
 
-  debug(disk);
-  debug(spaces)
-  debug(spaceChunks)
+  debug(disk.map(d => d?.id ?? null));
 
   let diskPullIndex = getStartOfNextFile(disk, disk.length - 1);
 
@@ -100,6 +98,8 @@ export const part2 = () => {
     const nextChunkThatFitsIndex = spaceChunks.findIndex(chunk => fileSize <= chunk.size);
 
     if (nextChunkThatFitsIndex === -1) {
+      debug(`Can't move ${id}`)
+
       // Can't fit this file, move on
       diskPullIndex = getStartOfNextFile(disk, diskPullIndex - 1);
       continue;
@@ -110,7 +110,8 @@ export const part2 = () => {
 
     if (spaceChunk.index >= diskPullIndex) {
       // Don't want to move things forward! We're done
-      break;
+      diskPullIndex = getStartOfNextFile(disk, diskPullIndex - 1);
+      continue;
     }
 
     debug(`Moving ${id} to ${spaceChunk.index}`)
@@ -121,12 +122,19 @@ export const part2 = () => {
       disk[diskPullIndex + x] = null;
     }
 
+    debug(disk.map(d => d?.id ?? null));
+
     // Update chunk
     spaceChunks[nextChunkThatFitsIndex] = { index: spaceChunk.index + fileSize, size: spaceChunk.size - fileSize }
+
 
     // Move on
     diskPullIndex = getStartOfNextFile(disk, diskPullIndex - 1);
   }
+
+  debug(disk.map(d => d?.id ?? null));
+
+
 
   let total = 0;
   let pos = 0;
