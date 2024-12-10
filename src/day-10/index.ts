@@ -23,11 +23,9 @@ const parseInput = () => {
 
 type VisitState = { current: Space; start: Position }
 
-export const part1 = () => {
-  const grid = parseInput()
-
+const getAllValidRoutes = (grid: Grid<Space>) => {
   let routeToString = (start: Position, end: Position) => `${start.x},${start.y}->${end.x},${end.y}`;
-  let trailheadRoutes: Set<string> = new Set<string>();
+  let trailheadRoutes: string[] = [];
   let states: VisitState[] = [];
 
   // Add the trail heads
@@ -42,7 +40,7 @@ export const part1 = () => {
       if (neighbour.value == current.value + 1) {
         if (neighbour.value === 9) {
           // Found a peak!
-          trailheadRoutes.add(routeToString(start, neighbour));
+          trailheadRoutes.push(routeToString(start, neighbour));
         } else {
           // Not a peak, push to states and carry on
           states.push({ current: neighbour, start });
@@ -51,13 +49,17 @@ export const part1 = () => {
     }
   }
 
-  debug(trailheadRoutes);
+  return trailheadRoutes;
+}
 
-  return trailheadRoutes.size;
+export const part1 = () => {
+  const grid = parseInput()
+
+  return new Set<string>(getAllValidRoutes(grid)).size;
 }
 
 export const part2 = () => {
   const grid = parseInput()
 
-  return 0
+  return getAllValidRoutes(grid).length;
 }
