@@ -1,5 +1,7 @@
+import chalk from 'chalk'
 import { parseLines, readInput } from 'io'
 import { log, debug } from 'log'
+import toSum from 'utils/toSum'
 
 const input = await readInput('day-11')
 
@@ -31,12 +33,16 @@ const parseInput = (): Stones => {
   return { first: firstStone, count }
 }
 
-const renderStones = (firstStone: StoneNode) => {
+const renderStones = (firstStone: StoneNode, count?: number) => {
   let thisStone: StoneNode | undefined = firstStone;
-  while (thisStone !== undefined) {
-    debug(thisStone.value)
+  let stoneList = "";
+  let total = 0;
+  while (thisStone !== undefined && (!count || total < count)) {
+    stoneList += `${thisStone.value} `;
     thisStone = thisStone.next;
+    total++;
   }
+  debug(stoneList);
 }
 
 export const part1 = () => {
@@ -45,6 +51,7 @@ export const part1 = () => {
   const iterations = 25;
 
   for (let x = 0; x < iterations; x++) {
+
     let thisStone: StoneNode | undefined = stones.first;
 
     // Process each stone in turn
@@ -88,9 +95,51 @@ export const part1 = () => {
 }
 
 export const part2 = () => {
-  const stones = parseInput()
+  const iterations = 75;
 
-  //debug(stones.first);
+  // Map of stone values to how many we have of them, since list position is unimportant
+  const stoneCounts = new Map<number, number>();
+  input.split(' ').map(Number).forEach(x => stoneCounts.set(x, (stoneCounts.get(x) ?? 0) + 1))
 
-  return stones.count;
+  for (let x = 0; x < iterations; x++) {
+    log(`Iteration: ${x}. Stones: ${stoneCounts.values().reduce(toSum)}`);
+
+    // Work out how stones will change in this iteration, we apply all at end.
+    const stoneDeltas = new Map<number, number>();
+
+    // Process each stone in turn
+    for (const [stoneValue, stoneCount] of stoneCounts.entries()) {
+
+      // Decide how to change / split this stone. But instead we manipulate counts
+      if (stoneValue === 0) {
+        // All these zeroes will become ones, so set that delta.
+        stoneDeltas.set(0, (stoneDeltas.get(0) ?? 0) - stoneCount)
+        stoneDeltas.set(1, (stoneDeltas.get(1) ?? 0) + stoneCount)
+      }
+      else if (stoneValue.toString().length % 2 === 0) {
+        // Split the stone
+        const valueAsString = stoneValue.toString();
+        const firstHalf = parseInt(valueAsString.substring(0, valueAsString.length / 2));
+        const secondHalf = parseInt(valueAsString.substring(valueAsString.length / 2));
+
+        // We create as many of each of these as we were to split
+        stoneDeltas.set(stoneValue, (stoneDeltas.get(stoneValue) ?? 0) - stoneCount)
+        stoneDeltas.set(firstHalf, (stoneDeltas.get(firstHalf) ?? 0) + stoneCount)
+        stoneDeltas.set(secondHalf, (stoneDeltas.get(secondHalf) ?? 0) + stoneCount)
+      }
+      else {
+        // Multiply by 2024 for all of this count, removing the existing
+        stoneDeltas.set(stoneValue, (stoneDeltas.get(stoneValue) ?? 0) - stoneCount)
+        stoneDeltas.set(stoneValue * 2024, (stoneDeltas.get(stoneValue * 2024) ?? 0) + stoneCount)
+      }
+    }
+
+    // Now apply all deltas
+    for (const [stoneValue, stoneDelta] of stoneDeltas.entries()) {
+      stoneCounts.set(stoneValue, (stoneCounts.get(stoneValue) ?? 0) + stoneDelta)
+    }
+
+  }
+
+  return stoneCounts.values().reduce(toSum);
 }
