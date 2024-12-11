@@ -102,7 +102,7 @@ export const part2 = () => {
   input.split(' ').map(Number).forEach(x => stoneCounts.set(x, (stoneCounts.get(x) ?? 0) + 1))
 
   for (let x = 0; x < iterations; x++) {
-    log(`Iteration: ${x}. Stones: ${stoneCounts.values().reduce(toSum)}`);
+    debug(`Iteration: ${x}. Stones: ${stoneCounts.values().reduce(toSum)}`);
 
     // Work out how stones will change in this iteration, we apply all at end.
     const stoneDeltas = new Map<number, number>();
@@ -142,4 +142,45 @@ export const part2 = () => {
   }
 
   return stoneCounts.values().reduce(toSum);
+}
+
+// An alternate implementation of part2 that uses recursion and caching instead of the map.
+export const part2Alternate = () => {
+
+  const getStoneCountCache = new Map<string, number>();
+
+  const getStoneCount = (stoneValue: number, remainingIterations: number): number => {
+    const cacheKey = `${stoneValue}|${remainingIterations}`;
+
+    if (getStoneCountCache.has(cacheKey))
+      return getStoneCountCache.get(cacheKey)!;
+
+    let returnValue;
+
+    if (remainingIterations === 0) {
+      returnValue = 1;
+    }
+    else if (stoneValue == 0) {
+      returnValue = getStoneCount(1, remainingIterations - 1)
+    }
+    else if (stoneValue.toString().length % 2 === 0) {
+      // Split the stone
+      const valueAsString = stoneValue.toString();
+      const firstHalf = parseInt(valueAsString.substring(0, valueAsString.length / 2));
+      const secondHalf = parseInt(valueAsString.substring(valueAsString.length / 2));
+
+      returnValue = getStoneCount(firstHalf, remainingIterations - 1) + getStoneCount(secondHalf, remainingIterations - 1)
+    }
+    else {
+      returnValue = getStoneCount(stoneValue * 2024, remainingIterations - 1);
+    }
+
+    debug(`${cacheKey} = ${returnValue}`);
+    getStoneCountCache.set(cacheKey, returnValue);
+    return returnValue;
+  }
+
+  const iterations = 75;
+
+  return input.split(' ').map(Number).map(x => getStoneCount(x, iterations)).reduce(toSum)
 }
