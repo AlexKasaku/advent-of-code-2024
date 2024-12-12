@@ -11,6 +11,7 @@ type Space = Position & {
   regionId?: number;
 }
 type PlotData = { area: number; perimeter: number }
+type PlotSideData = { area: number; sides: number }
 
 const parseInput = (): Grid<Space> => {
   const lines = parseLines(input)
@@ -22,6 +23,35 @@ const parseInput = (): Grid<Space> => {
     char: values[y][x]
   }
   ));
+}
+
+const identifyRegions = (grid: Grid<Space>): void => {
+  // Walk across the grid, each time we find a space without a region ID we will spider out from
+  // that point and assign a new region ID to all plots in that area with the same char.
+  let regionCounter = 1;
+  for (let y = 0; y < grid.Values.length; y++) {
+    for (let x = 0; x < grid.Values[0].length; x++) {
+      if (!grid.get({ x, y })?.regionId) {
+        const thisSpace = grid.get({ x, y })!;
+
+        // On a space with no region id. Assign a new regionID and find all spaces in this region;
+        thisSpace.regionId = regionCounter++;
+
+        //const adjacents: Space[] = [];
+        const spacesToCheck: Space[] = [thisSpace];
+
+        while (spacesToCheck.length > 0) {
+          const space = spacesToCheck.pop()!;
+          grid.getNeighbours(space, true).forEach(neighbour => {
+            if (neighbour.char === space.char && !neighbour.regionId) {
+              neighbour.regionId = thisSpace.regionId;
+              spacesToCheck.push(neighbour);
+            }
+          })
+        }
+      }
+    }
+  }
 }
 
 const updatePlots = (values: Space[][], plots: Map<number, PlotData>, updateArea: boolean) => {
@@ -51,91 +81,78 @@ const updatePlots = (values: Space[][], plots: Map<number, PlotData>, updateArea
   }
 }
 
-// const identifyRegions = (grid: Grid<Space>): void => {
 
-//   // Identify regions in the grid and assign a unique id. A region is defined by spaces
-//   // that touch each other with the same char.
-//   let regionCounter = 1;
-//   const merges = new Map<number, number[]>();
-//   for (let y = 0; y < grid.Values.length; y++) {
-//     for (let x = 0; x < grid.Values[0].length; x++) {
+const updatePlotsPart2 = (values: Space[][], plots: Map<number, PlotSideData>, updateArea: boolean) => {
 
-//       const thisSpace = grid.get({ x, y })!;
-//       const neighbours = grid.getNeighbours({ x, y }, true);
+  // Maps a region id to lists of boundary positions
+  const boundaries = new Map<number, Position[][]>();
 
-//       neighbours.forEach(neighbour => {
-//         if (neighbour.regionId && !thisSpace.regionId && neighbour.char == thisSpace.char) {
-//           // Neighbour that is matching and already assigned a region, we'll take it.
-//           thisSpace.regionId = neighbour.regionId;
-//         } else if (!neighbour.regionId && thisSpace.regionId && neighbour.char == thisSpace.char) {
-//           // Neighbour that is matching and already assigned a region, we'll take it.
-//           neighbour.regionId = thisSpace.regionId;
-//         } else if (neighbour.regionId && thisSpace.regionId && neighbour.char == thisSpace.char && neighbour.regionId !== thisSpace.regionId) {
+  for (let y = 0; y < values.length; y++) {
+    for (let x = 0; x < values[0].length + 1; x++) {
+      // Compare cell with cell before it. We go one extra so we'll be compared the cell off the grid too.
+      const thisSpace = values[y]?.[x];
+      const prevSpace = values[y]?.[x - 1];
 
-//           // Two adjacent regions that should be merged
-//           if (!merges.has(thisSpace.regionId) && !merges.has(neighbour.regionId))
-//             merges.set(thisSpace.regionId, [neighbour.regionId]);
-//           else if (merges.has(thisSpace.regionId) && !merges.has(neighbour.regionId))
-//             merges.set(thisSpace.regionId, [...merges.get(thisSpace.regionId)!.filter(x => x !== neighbour.regionId), neighbour.regionId]);
-//           else
-//             merges.set(neighbour.regionId, [...merges.get(neighbour.regionId)!.filter(x => x !== thisSpace.regionId), thisSpace.regionId]);
-//         }
-//       });
+      if (thisSpace && !plots.has(thisSpace.regionId!))
+        plots.set(thisSpace.regionId!, { area: 0, sides: 0 })
 
-//       if (!thisSpace.regionId) {
-//         thisSpace.regionId = regionCounter;
-//         regionCounter++
-//       }
-//     }
-//   }
+      // Update area
+      if (thisSpace && updateArea)
+        plots.get(thisSpace.regionId!)!.area++;
 
-//   debug(merges);
-//   // Perform merges. Flip map to create updates
-//   const mergeMap = new Map<number, number>();
-//   merges.entries().forEach(([to, froms]) => {
-//     froms.forEach(f => {
-//       if (mergeMap.has(f)) throw 'Duplicate merge state found on ' + f;
-//       mergeMap.set(f, to);
-//     })
-//   });
+      // Update sides
+      if (thisSpace?.char !== prevSpace?.char) {
 
-//   grid.Values.flat().forEach(space => {
-//     while (mergeMap.has(space.regionId!)) {
-//       space.regionId = mergeMap.get(space.regionId!)
-//     }
-//   });
-// }
+        // Add this as a boundary of both regions, joining on to an existing boundary if it is adjacent.
+        // We always process top-to-bottom, left-to-right so we only need for a boundary above.
+        if (thisSpace) {
+          const thisBoundaries = boundaries.get(thisSpace.regionId!) ?? [];
 
-const identifyRegions = (grid: Grid<Space>): void => {
+          // Look for a boundary include the position above, if it's there join that list, otherwise
+          // start a new list.
+          const existingBoundary = thisBoundaries.find(b => b.find(n => n.x == x && n.y == y - 1));
+          if (existingBoundary) {
+            if (!existingBoundary.find(n => n.x == x && n.y == y))
+              existingBoundary.push({ x: x, y: y });
+          }
+          else
+            thisBoundaries.push([{ x: x, y: y }]);
 
-  // Walk across the grid, each time we find a space without a region ID we will spider out from
-  // that point and assign a new region ID to all plots in that area with the same char.
-  let regionCounter = 1;
-  for (let y = 0; y < grid.Values.length; y++) {
-    for (let x = 0; x < grid.Values[0].length; x++) {
-      if (!grid.get({ x, y })?.regionId) {
-        const thisSpace = grid.get({ x, y })!;
+          boundaries.set(thisSpace.regionId!, thisBoundaries);
+        }
+        if (prevSpace) {
+          const thisBoundaries = boundaries.get(prevSpace.regionId!) ?? [];
 
-        // On a space with no region id. Assign a new regionID and find all spaces in this region;
-        thisSpace.regionId = regionCounter++;
+          // Look for a boundary include the position above, if it's there join that list, otherwise
+          // start a new list.
 
-        //const adjacents: Space[] = [];
-        const spacesToCheck: Space[] = [thisSpace];
+          // Because we want to differentiate between adjacent boundaries that are on reverse sides, i.e.:
+          // AB
+          // BA
 
-        while (spacesToCheck.length > 0) {
-          const space = spacesToCheck.pop()!;
-          grid.getNeighbours(space, true).forEach(neighbour => {
-            if (neighbour.char === space.char && !neighbour.regionId) {
-              neighbour.regionId = thisSpace.regionId;
-              spacesToCheck.push(neighbour);
-            }
-          })
+          // If we're adding to a previous boundary, we'll move the boundary line off grid so it won't ever be combined. This works
+          // since we only need x + y as relative positions to each other for the sake of calculating the sides.
+          const existingBoundary = thisBoundaries.find(b => b.find(n => n.x == x - values.length && n.y == y - 1 - values.length));
+          if (existingBoundary) {
+            if (!existingBoundary.find(n => n.x == x - values.length && n.y == y - values.length))
+              existingBoundary.push({ x: x - values.length, y: y - values.length });
+          }
+          else
+            thisBoundaries.push([{ x: x - values.length, y: y - values.length }]);
+
+          boundaries.set(prevSpace.regionId!, thisBoundaries);
         }
       }
     }
   }
 
+  //console.dir(boundaries, { depth: null });
+
+  for (const [region, sides] of boundaries)
+    plots.get(region)!.sides += sides.length
 }
+
+
 
 export const part1 = () => {
   const grid = parseInput()
@@ -144,20 +161,26 @@ export const part1 = () => {
   // Identify regions
   identifyRegions(grid);
 
-  debug(grid.Values)
-
   // Go through every column and row and compare plots
   updatePlots(grid.Values, plots, true);
   updatePlots(transpose(grid.Values), (plots), false);
-
-  debug(plots);
 
   return plots.values().map(x => x.area * x.perimeter).reduce(toSum)
 }
 
 export const part2 = () => {
   const grid = parseInput()
-  return 0;
+  const plots = new Map<number, PlotSideData>();
+
+  // Identify regions
+  identifyRegions(grid);
+
+  // Go through every column and row and compare plots
+  updatePlotsPart2(grid.Values, plots, true);
+  updatePlotsPart2(transpose(grid.Values), plots, false);
+
+  // Tried 814074 
+  return plots.values().map(x => x.area * x.sides).reduce(toSum)
 }
 
 
