@@ -9,7 +9,7 @@ type Machine = {
   prize: { x: number, y: number }
 }
 
-const parseInput = (): Machine[] => {
+const parseInput = (prizeUplift: number): Machine[] => {
   return input.split('\n\n').map(group => {
 
     const regex = /Button A: X\+(\d+), Y\+(\d+)\s+Button B: X\+(\d+), Y\+(\d+)\s+Prize: X=(\d+), Y=(\d+)/;
@@ -18,14 +18,14 @@ const parseInput = (): Machine[] => {
     return {
       buttonA: { x: matches[0], y: matches[1] },
       buttonB: { x: matches[2], y: matches[3] },
-      prize: { x: matches[4], y: matches[5] },
+      prize: { x: matches[4] + prizeUplift, y: matches[5] + prizeUplift },
     }
 
   })
 }
 
 export const part1 = () => {
-  const machines = parseInput()
+  const machines = parseInput(0)
 
   let total = 0;
 
@@ -41,7 +41,6 @@ export const part1 = () => {
 
         if ((a * machine.buttonA.x + b * machine.buttonB.x == machine.prize.x) &&
           (a * machine.buttonA.y + b * machine.buttonB.y == machine.prize.y)) {
-          //debug(`${a},${b}`);
           cheapest = cost
         }
       }
@@ -55,7 +54,27 @@ export const part1 = () => {
 }
 
 export const part2 = () => {
-  const lines = parseInput()
-  // your code goes here
-  return lines.length
+  const machines = parseInput(10000000000000)
+
+  let total = 0;
+
+  for (const machine of machines) {
+
+    // Test a solve 
+    const b = ((machine.buttonA.x * machine.prize.y) - (machine.buttonA.y * machine.prize.x)) / ((machine.buttonA.x * machine.buttonB.y) - (machine.buttonA.y * machine.buttonB.x));
+
+    if (Number.isInteger(b)) {
+      // Solvable
+      const a = (machine.prize.x - (machine.buttonB.x * b)) / machine.buttonA.x;
+
+      if (Number.isInteger(a)) {
+        debug(`${a} + ${b}`);
+
+        total += 3 * a + b;
+      }
+    }
+
+  }
+
+  return total
 }
