@@ -53,6 +53,23 @@ const calculateSafety = (robots: Robot[], width: number, height: number) => {
   return topLeft * topRight * bottomLeft * bottomRight;
 }
 
+const posToString = (position: Position): string => `${position.x},${position.y}`
+
+const render = (robots: Robot[], width: number, height: number) => {
+
+  const uniquePositions = new Set<string>();
+  for (const robot of robots)
+    uniquePositions.add(posToString(robot.position))
+
+  for (let y = 0; y < height; y++) {
+    let line = '';
+    for (let x = 0; x < width; x++) {
+      line += uniquePositions.has(posToString({ x, y })) ? "X" : "."
+    }
+    log(line);
+  }
+}
+
 export const part1 = () => {
   const robots = parseInput()
 
@@ -63,13 +80,34 @@ export const part1 = () => {
   return calculateSafety(robots, width, height);
 }
 
-export const part2 = () => {
+async function sleep(msec: number) {
+  return new Promise(resolve => setTimeout(resolve, msec));
+}
+
+export const part2 = async () => {
   const robots = parseInput()
 
+  // Vertically aligned, starts at 51 then every 103
+  const startFrom = 7055, seconds = 0, width = 101, height = 103;
 
+  if (startFrom > 0)
+    moveRobots(robots, startFrom, width, height);
+
+  let elapsed = startFrom;
+  while (true) {
+    moveRobots(robots, seconds, width, height);
+    elapsed += seconds;
+
+    console.clear();
+    render(robots, width, height);
+    log(elapsed);
+    await sleep(500);
+  }
 
   return 0
 }
+
+
 
 
 
