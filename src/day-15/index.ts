@@ -1,5 +1,5 @@
 import { parseLines, readInput } from 'io'
-import { log, debug } from 'log'
+import { log, debug, isDebug } from 'log'
 import { Position, Grid, CardinalDirection } from 'utils/grid';
 import toSum from 'utils/toSum';
 
@@ -61,6 +61,7 @@ const getSpaceChar = ({ x, y, isWall, isBox }: Space, isRobot: boolean) => {
 }
 
 const renderGrid = (grid: Grid<Space>, robot: Position): void => {
+  if (!isDebug()) return;
   for (const row of grid.Values) { debug(row.reduce((a, b) => a + getSpaceChar(b, b.x === robot.x && b.y === robot.y), '')) }
   debug()
 }
