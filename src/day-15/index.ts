@@ -1,6 +1,7 @@
 import { parseLines, readInput } from 'io'
 import { log, debug } from 'log'
 import { Position, Grid, CardinalDirection } from 'utils/grid';
+import toSum from 'utils/toSum';
 
 const input = await readInput('day-15')
 
@@ -128,8 +129,7 @@ export const part1 = () => {
     renderGrid(grid, robot);
   }
 
-
-  return 0
+  return grid.Values.flat().filter(space => space.isBox).map(space => (space.y * 100) + space.x).reduce(toSum)
 }
 
 export const part2 = () => {
