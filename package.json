@@ -14,12 +14,14 @@
     "format": "eslint . --fix"
   },
   "dependencies": {
+    "pngjs": "^7.0.0",
     "typescript": "^5.3.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@matijaoe/eslint-config": "^1.2.0",
     "@stylistic/eslint-plugin": "^2.11.0",
+    "@types/pngjs": "^6.0.5",
     "bun-types": "latest",
     "chalk": "^5.3.0",
     "eslint": "^9.16.0",

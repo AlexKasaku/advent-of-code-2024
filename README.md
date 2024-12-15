@@ -20,13 +20,13 @@ Thanks to [matijaoe/advent-of-code](https://github.com/matijaoe/advent-of-code-2
 | 06  |   ⭐   |   ⭐  | [Link](./src/day-06/index.ts) | [Day 06](https://adventofcode.com/2024/day/6)  |
 | 07  |   ⭐   |   ⭐  | [Link](./src/day-07/index.ts) | [Day 07](https://adventofcode.com/2024/day/7)  |
 | 08  |   ⭐   |   ⭐  | [Link](./src/day-08/index.ts) | [Day 08](https://adventofcode.com/2024/day/8)  |
-| 09  |        |        |                               | [Day 09](https://adventofcode.com/2024/day/9)  |
-| 10  |        |        |                               | [Day 10](https://adventofcode.com/2024/day/10) |
-| 11  |        |        |                               | [Day 11](https://adventofcode.com/2024/day/11) |
-| 12  |        |        |                               | [Day 12](https://adventofcode.com/2024/day/12) |
-| 13  |        |        |                               | [Day 13](https://adventofcode.com/2024/day/13) |
-| 14  |        |        |                               | [Day 14](https://adventofcode.com/2024/day/14) |
-| 15  |        |        |                               | [Day 15](https://adventofcode.com/2024/day/15) |
+| 09  |   ⭐   |   ⭐  | [Link](./src/day-09/index.ts) | [Day 09](https://adventofcode.com/2024/day/9)  |
+| 10  |   ⭐   |   ⭐  | [Link](./src/day-10/index.ts) | [Day 10](https://adventofcode.com/2024/day/10) |
+| 11  |   ⭐   |   ⭐  | [Link](./src/day-11/index.ts) | [Day 11](https://adventofcode.com/2024/day/11) |
+| 12  |   ⭐   |   ⭐  | [Link](./src/day-12/index.ts) | [Day 12](https://adventofcode.com/2024/day/12) |
+| 13  |   ⭐   |   ⭐  | [Link](./src/day-13/index.ts) | [Day 13](https://adventofcode.com/2024/day/13) |
+| 14  |   ⭐   |   ⭐  | [Link](./src/day-14/index.ts) | [Day 14](https://adventofcode.com/2024/day/14) |
+| 15  |   ⭐   |   ⭐  | [Link](./src/day-15/index.ts) | [Day 15](https://adventofcode.com/2024/day/15) |
 | 16  |        |        |                               | [Day 16](https://adventofcode.com/2024/day/16) |
 | 17  |        |        |                               | [Day 17](https://adventofcode.com/2024/day/17) |
 | 18  |        |        |                               | [Day 18](https://adventofcode.com/2024/day/18) |

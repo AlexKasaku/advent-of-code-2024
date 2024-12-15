@@ -1,6 +1,8 @@
 import { parseLines, readInput } from 'io'
 import { log, debug } from 'log'
 import type { Position } from 'utils/grid'
+import { PNG } from 'pngjs'
+import { createWriteStream, writeFileSync } from 'fs'
 
 const input = await readInput('day-14')
 
@@ -70,6 +72,31 @@ const render = (robots: Robot[], width: number, height: number) => {
   }
 }
 
+const generateImage = (robots: Robot[], elapsed: number, width: number, height: number) => {
+
+  let png = new PNG({ width, height });
+
+  const uniquePositions = new Set<string>();
+  for (const robot of robots)
+    uniquePositions.add(posToString(robot.position))
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let idx = (png.width * y + x) << 2;
+
+      const hasRobot = uniquePositions.has(posToString({ x, y }));
+
+      png.data[idx] = hasRobot ? 255 : 0; // red
+      png.data[idx + 1] = hasRobot ? 255 : 0; // green
+      png.data[idx + 2] = hasRobot ? 255 : 0; // blue
+      png.data[idx + 3] = 255; // alpha (0 is transparent)
+    }
+  }
+
+  const buff = PNG.sync.write(png);
+  writeFileSync(`src/day-14/outputs/${elapsed}.png`, buff.buffer);
+}
+
 export const part1 = () => {
   const robots = parseInput()
 
@@ -80,28 +107,20 @@ export const part1 = () => {
   return calculateSafety(robots, width, height);
 }
 
-async function sleep(msec: number) {
-  return new Promise(resolve => setTimeout(resolve, msec));
-}
-
-export const part2 = async () => {
+export const part2 = () => {
   const robots = parseInput()
 
-  // Vertically aligned, starts at 51 then every 103
-  const startFrom = 7055, seconds = 0, width = 101, height = 103;
-
-  if (startFrom > 0)
-    moveRobots(robots, startFrom, width, height);
+  const startFrom = 6800, seconds = 1, width = 101, height = 103;
+  moveRobots(robots, startFrom, width, height);
 
   let elapsed = startFrom;
-  while (true) {
+  while (elapsed < 7500) {
     moveRobots(robots, seconds, width, height);
     elapsed += seconds;
 
-    console.clear();
-    render(robots, width, height);
+    generateImage(robots, elapsed, width, height);
+
     log(elapsed);
-    await sleep(500);
   }
 
   return 0

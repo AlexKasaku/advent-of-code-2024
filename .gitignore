@@ -4,6 +4,10 @@
 input.txt
 example.txt
 
+# AOC outputs
+src/**/outputs/*
+!src/**/outputs/keepfile
+
 # Logs
 
 logs
