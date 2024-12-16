@@ -80,6 +80,15 @@ export class Grid<T> {
     }
   }
 
+  getNextInDirection = (
+    { x, y }: Position,
+    direction: Direction
+  ) => {
+    const deltaX = direction.includes('W') ? -1 : direction.includes('E') ? 1 : 0
+    const deltaY = direction.includes('N') ? -1 : direction.includes('S') ? 1 : 0
+    return this.get({ x: x + deltaX, y: y + deltaY })
+  }
+
   getAllInDirection = (
     { x, y }: Position,
     direction: Direction,

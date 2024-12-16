@@ -4,7 +4,7 @@ import { formatDay, formatDayName, formatPerformance, validateDay, withPerforman
 import { parseArgs } from "util"
 import { getDefaultFile, setDefaultFile } from 'io'
 
-const runDay = async (day: number, isDevMode?: boolean, defaultInput?: string) => {
+const runDay = async (day: number, isDevMode?: boolean, defaultInput?: string, part?: number) => {
   if (!validateDay(day)) {
     console.log(`🎅 Pick a day between ${chalk.bold(1)} and ${chalk.bold(25)}.`)
     console.log(`🎅 To get started, try: ${chalk.cyan('bun day 1')}`)
@@ -27,33 +27,33 @@ const runDay = async (day: number, isDevMode?: boolean, defaultInput?: string) =
 
   const { part1, part2 } = await import(`../${formatDayName(day)}/index.ts`)
 
-  const [one, onePerformance] = withPerformance(() => part1?.())
-  const [two, twoPerformance] = withPerformance(() => part2?.())
-
-  if (!isDevMode) 
-    console.clear()
-
   console.log(
     '💻',
     'Dev Mode:',
     chalk.cyanBright(isDevMode ? 'Yes' : 'No'),
     'Default File:',
     chalk.cyanBright(getDefaultFile()),
-  )    
+  )
   console.log();
 
-  console.log(
-    '🌲',
-    'Part One:',
-    chalk.green(one ?? '—'),
-    one ? `(${formatPerformance(onePerformance)})` : ''
-  )
-  console.log(
-    '🎄',
-    'Part Two:',
-    chalk.green(two ?? '—'),
-    two ? `(${formatPerformance(twoPerformance)})` : ''
-  )
+  if (!part || part === 1) {
+    const [one, onePerformance] = withPerformance(() => part1?.())
+    console.log(
+      '🌲',
+      'Part One:',
+      chalk.green(one ?? '—'),
+      one ? `(${formatPerformance(onePerformance)})` : ''
+    )
+  }
+  if (!part || part === 2) {
+    const [two, twoPerformance] = withPerformance(() => part2?.())
+    console.log(
+      '🎄',
+      'Part Two:',
+      chalk.green(two ?? '—'),
+      two ? `(${formatPerformance(twoPerformance)})` : ''
+    )
+  }
 }
 
 const { values, positionals } = parseArgs({
@@ -67,6 +67,9 @@ const { values, positionals } = parseArgs({
     },
     e: {
       type: 'boolean'
+    },
+    part: {
+      type: 'string'
     }
   },
   strict: true,
@@ -76,5 +79,6 @@ const { values, positionals } = parseArgs({
 const day = Number(positionals[2] ?? '');
 const isDevMode = values['dev'];
 const defaultInput = values['input'] ?? (values['e'] ? 'example' : undefined);
+const part = Number(values['part'])
 
-runDay(day, isDevMode, defaultInput)
+runDay(day, isDevMode, defaultInput, part)
