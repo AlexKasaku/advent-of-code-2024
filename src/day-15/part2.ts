@@ -1,7 +1,9 @@
 import { parseLines, readInput } from 'io'
 import { log, debug, isDebug } from 'log'
+import { PNG } from 'pngjs';
 import { Position, Grid, CardinalDirection } from 'utils/grid';
 import toSum from 'utils/toSum';
+import { writeFileSync } from 'fs';
 
 const input = await readInput('day-15')
 
@@ -60,18 +62,34 @@ const parseInput = (): Data => {
     }
 }
 
-const getSpaceChar = ({ x, y, isWall, isBoxL, isBoxR }: Space, isRobot: boolean) => {
-    if (isWall) { return '🧱' }
-    if (isRobot) { return '🤖' }
-    if (isBoxL) { return '🌓' }
-    if (isBoxR) { return '🌗' }
-    return '⚫'
+const getColorForSpace = ({ x, y, isWall, isBoxL, isBoxR }: Space, isRobot: boolean): number[] => {
+    if (isWall) { return [255, 0, 0] }
+    if (isRobot) { return [255, 255, 255] }
+    if (isBoxL) { return [255, 243, 89] }
+    if (isBoxR) { return [216, 207, 75] }
+    return [0, 0, 0]
 }
 
-const renderGrid = (grid: Grid<Space>, robot: Position): void => {
-    if (!isDebug()) return;
-    for (const row of grid.Values) { debug(row.reduce((a, b) => a + getSpaceChar(b, b.x === robot.x && b.y === robot.y), '')) }
-    debug()
+const renderGrid = (grid: Grid<Space>, robot: Position, elapsed: number): void => {
+
+    let png = new PNG({ width: grid.Width * 4, height: grid.Height * 4 });
+
+    for (let y = 0; y < png.height; y++) {
+        for (let x = 0; x < png.width; x++) {
+            let idx = (png.width * y + x) << 2;
+
+            const space = grid.get({ x: Math.floor(x / 4), y: Math.floor(y / 4) })!;
+            const colour = getColorForSpace(space, Math.floor(x / 4) === robot.x && Math.floor(y / 4) === robot.y);
+
+            png.data[idx] = colour[0];
+            png.data[idx + 1] = colour[1];
+            png.data[idx + 2] = colour[2];
+            png.data[idx + 3] = 255; // alpha (0 is transparent)
+        }
+    }
+
+    const buff = PNG.sync.write(png);
+    writeFileSync(`src/day-14/outputs/${String(elapsed).padStart(5, '0')}.png`, buff.buffer);
 }
 
 function moveRobot(grid: Grid<Space>, robot: Position, command: CardinalDirection) {
@@ -209,12 +227,12 @@ function moveRobot(grid: Grid<Space>, robot: Position, command: CardinalDirectio
 export const part2 = () => {
     const { grid, robot, commands } = parseInput()
 
-    renderGrid(grid, robot);
-
+    let i = 1;
     for (const command of commands) {
-        debug(command);
+        log(`${i} / ${commands.length}`);
         moveRobot(grid, robot, command);
-        renderGrid(grid, robot);
+        renderGrid(grid, robot, i);
+        i++;
     }
 
     return grid.Values.flat().filter(space => space.isBoxL).map(space => (space.y * 100) + space.x).reduce(toSum)
