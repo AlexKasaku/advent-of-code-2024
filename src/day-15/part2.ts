@@ -7,18 +7,18 @@ import { writeFileSync } from 'fs';
 
 const input = await readInput('day-15')
 
-type Space = Position & {
+export type Space = Position & {
     isWall: boolean;
     isBoxL: boolean;
     isBoxR: boolean;
 }
-type Data = {
+export type Data = {
     grid: Grid<Space>,
     robot: Position,
     commands: CardinalDirection[]
 }
 
-const parseInput = (): Data => {
+export const parseInput = (): Data => {
     const inputGroups = input.split('\n\n');
 
     const values = inputGroups[0]
@@ -92,7 +92,7 @@ const renderGrid = (grid: Grid<Space>, robot: Position, elapsed: number): void =
     writeFileSync(`src/day-14/outputs/${String(elapsed).padStart(5, '0')}.png`, buff.buffer);
 }
 
-function moveRobot(grid: Grid<Space>, robot: Position, command: CardinalDirection) {
+export const moveRobot = (grid: Grid<Space>, robot: Position, command: CardinalDirection) => {
 
     // Movement has to work completely different to part 1. Every box could be half-aligned to another box and so on, so there's many
     // more space to consider.
