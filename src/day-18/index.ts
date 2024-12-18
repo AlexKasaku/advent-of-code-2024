@@ -31,7 +31,7 @@ type State = {
 
 type Route = {
   state: State;
-  positions: Position[];
+  positions: Set<Position>;
   steps: number;
 };
 
@@ -51,14 +51,14 @@ const height = 71;
 const start = { x: 0, y: 0 };
 const end = { x: 70, y: 70 };
 
-const canReachEnd = (grid: Grid<Space>, start: { x: number; y: number; }, end: { x: number; y: number; }) => {
+const routeToEnd = (grid: Grid<Space>, start: { x: number; y: number; }, end: { x: number; y: number; }) => {
   const lowestCostForState = new Map<string, number>();
   const queue = priorityQueue<Route>((a, b) => a.steps <= b.steps);
 
   queue.insert(
     {
       state: { position: start },
-      positions: [],
+      positions: new Set<Position>(),
       steps: 0,
     }
   );
@@ -68,7 +68,7 @@ const canReachEnd = (grid: Grid<Space>, start: { x: number; y: number; }, end: {
     const { position } = state;
 
     if (position.x === end.x && position.y === end.y) {
-      return true;
+      return positions;
     }
 
     // Have we been to this space before, and was it with a lower value?
@@ -80,71 +80,31 @@ const canReachEnd = (grid: Grid<Space>, start: { x: number; y: number; }, end: {
     lowestCostForState.set(stateKey, steps);
 
     // Add movements for all directions, as long as we haven't visited them or they're blocked.
-    const visitedPositions = new Set<Position>(positions);
-    const unblockedNeighbours = grid.getNeighbours(position, true).filter(s => !s.isBlocked && !visitedPositions.has(s));
+    const unblockedNeighbours = grid.getNeighbours(position, true).filter(s => !s.isBlocked && !positions.has(s));
 
     for (const neighbour of unblockedNeighbours) {
+      const newPositions = new Set<Position>(positions);
+      newPositions.add(neighbour);
+
       queue.insert({
         state: {
           position: neighbour,
         },
-        positions: [...visitedPositions, neighbour],
+        positions: newPositions,
         steps: steps + 1,
       });
     }
   }
-  return false;
+  return undefined;
 }
 
 export const part1 = () => {
   const positions = parseInput()
   const grid = buildGrid(positions.slice(0, first), width, height);
 
-  const lowestCostForState = new Map<string, number>();
-  const queue = priorityQueue<Route>((a, b) => a.steps <= b.steps);
+  const route = routeToEnd(grid, start, end)!;
 
-  queue.insert(
-    {
-      state: { position: start },
-      positions: [],
-      steps: 0,
-    }
-  );
-
-  while (!queue.isEmpty()) {
-    const { state, positions, steps } = queue.dequeue()!;
-    const { position } = state;
-
-    if (position.x === end.x && position.y === end.y) {
-      debug(positions);
-      return steps;
-    }
-
-    // Have we been to this space before, and was it with a lower value?
-    const stateKey = getStateKey(state);
-    const previousVisit = lowestCostForState.get(stateKey);
-    if (previousVisit !== undefined && previousVisit <= steps) continue;
-
-    // This is new or better visit for this space
-    lowestCostForState.set(stateKey, steps);
-
-    // Add movements for all directions, as long as we haven't visited them or they're blocked.
-    const visitedPositions = new Set<Position>(positions);
-    const unblockedNeighbours = grid.getNeighbours(position, true).filter(s => !s.isBlocked && !visitedPositions.has(s));
-
-    for (const neighbour of unblockedNeighbours) {
-      queue.insert({
-        state: {
-          position: neighbour,
-        },
-        positions: [...visitedPositions, neighbour],
-        steps: steps + 1,
-      });
-    }
-  }
-
-  throw 'Could not reach end'
-
+  return route!.size;
 }
 
 export const part2 = () => {
@@ -160,7 +120,9 @@ export const part2 = () => {
     grid.get(byte)!.isBlocked = true;
 
     // Try and reach end
-    if (!canReachEnd(grid, start, end))
+    const route = routeToEnd(grid, start, end)!;
+
+    if (!route)
       return `${byte.x},${byte.y}`;
 
   }
