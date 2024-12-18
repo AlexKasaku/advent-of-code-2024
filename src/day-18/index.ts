@@ -112,18 +112,22 @@ export const part2 = () => {
   const grid = buildGrid(positions.slice(0, first), width, height);
 
   const remainingBytes = positions.slice(first);
+  let latestRoute = routeToEnd(grid, start, end)!;
 
   for (const byte of remainingBytes) {
 
     // Block off the next byte
-    debug(byte);
-    grid.get(byte)!.isBlocked = true;
+    let space = grid.get(byte)!;
+    space.isBlocked = true;
 
-    // Try and reach end
-    const route = routeToEnd(grid, start, end)!;
+    // Try and reach end. However if last byte added wasn't in the latest route, we can skip it
+    // as the route will be the same.
+    if (latestRoute.has(space)) {
+      latestRoute = routeToEnd(grid, start, end)!;
 
-    if (!route)
-      return `${byte.x},${byte.y}`;
+      if (!latestRoute)
+        return `${byte.x},${byte.y}`;
+    }
 
   }
 
