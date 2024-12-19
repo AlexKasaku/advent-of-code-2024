@@ -1,6 +1,7 @@
 import { parseLines, readInput } from 'io'
 import { log, debug } from 'log'
 import priorityQueue from 'utils/priorityQueue'
+import toSum from 'utils/toSum'
 
 const input = await readInput('day-19')
 
@@ -18,57 +19,43 @@ const parseInput = (): Data => {
   }
 }
 
+// Stores remainder strings and whether they are possible or not, to save recalculating
+const cachedStates = new Map<string, number>();
+
+const possibleWays = (remainder: string, patterns: string[]): number => {
+
+  if (remainder.length === 0)
+    return 1;
+
+  if (cachedStates.has(remainder)) {
+    debug(`Cache hit for ${remainder}`);
+    return cachedStates.get(remainder)!;
+  }
+
+  let remainingWays = 0;
+
+  for (const pattern of patterns) {
+    if (remainder.startsWith(pattern)) {
+      const newRemainder = remainder.substring(pattern.length);
+
+      const remainingWaysForNewRemainder = possibleWays(newRemainder, patterns);
+      remainingWays += remainingWaysForNewRemainder;
+    }
+  }
+
+  cachedStates.set(remainder, remainingWays);
+  return remainingWays;
+}
+
 export const part1 = () => {
   const { patterns, designs } = parseInput()
 
-  // Stores remainder strings and whether they are possible or not, to save recalculating
-  const cachedStates = new Map<string, boolean>();
-  let possible = 0;
-
-  type State = {
-    remainingAtEachStep: string[];
-    remaining: string;
-  }
-
-  const isPossible = (remainder: string): boolean => {
-
-    if (remainder.length === 0)
-      return true;
-
-    if (cachedStates.has(remainder))
-      return cachedStates.get(remainder)!;
-
-    let thisRemainderIsPossible = false;
-
-    for (const pattern of patterns) {
-      if (remainder.startsWith(pattern)) {
-        const newRemainder = remainder.substring(pattern.length);
-
-        if (isPossible(newRemainder)) {
-          thisRemainderIsPossible = true;
-          break;
-        }
-      }
-    }
-
-    cachedStates.set(remainder, thisRemainderIsPossible);
-    return thisRemainderIsPossible;
-  }
-
-  for (const design of designs) {
-
-    if (isPossible(design)) {
-      possible++
-    }
-
-  }
-
-
-
-  return possible;
+  return designs.map(d => possibleWays(d, patterns) > 0 ? 1 : 0).map(Number).reduce(toSum);
 }
 
 export const part2 = () => {
   const { patterns, designs } = parseInput()
-  return 0
+
+  return designs.map(d => possibleWays(d, patterns)).reduce(toSum);
+
 }
