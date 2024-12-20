@@ -148,6 +148,26 @@ export class Grid<T> {
   getSegment = ({ x, y }: Position, width: number, height: number) =>
     this.Values.slice(y, y + height).map((row) => row.slice(x, x + width))
 
+  getWithinDistance = (pos: Position, distance: number): T[] => {
+    const within = [];
+
+    // Get bounds, capping at 0 / edge.
+    const minY = pos.y - distance < 0 ? 0 : pos.y - distance;
+    const maxY = pos.y + distance >= this.Height ? this.Height - 1 : pos.y + distance;
+    const minX = pos.x - distance < 0 ? 0 : pos.x - distance;
+    const maxX = pos.x + distance >= this.Width ? this.Width - 1 : pos.x + distance;
+
+    for (let curY = minY; curY <= maxY; curY++) {
+      for (let curX = minX; curX <= maxX; curX++) {
+        const curPos = { x: curX, y: curY };
+        if (manhattanDistance(pos, curPos) <= distance) {
+          within.push(this.get(curPos)!);
+        }
+      }
+    }
+    return within;
+  }
+
   updateEachInSegment = (
     { x, y }: Position,
     width: number,

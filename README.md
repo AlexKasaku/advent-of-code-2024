@@ -30,8 +30,8 @@ Thanks to [matijaoe/advent-of-code](https://github.com/matijaoe/advent-of-code-2
 | 16  |   ⭐   |   ⭐  | [Link](./src/day-16/index.ts) | [Day 16](https://adventofcode.com/2024/day/16) |
 | 17  |   ⭐   |   ⭐  | [Link](./src/day-17/index.ts) | [Day 17](https://adventofcode.com/2024/day/17) |
 | 18  |   ⭐   |   ⭐  | [Link](./src/day-18/index.ts) | [Day 18](https://adventofcode.com/2024/day/18) |
-| 19  |        |        |                               | [Day 19](https://adventofcode.com/2024/day/19) |
-| 20  |        |        |                               | [Day 20](https://adventofcode.com/2024/day/20) |
+| 19  |   ⭐   |   ⭐  | [Link](./src/day-19/index.ts) | [Day 19](https://adventofcode.com/2024/day/19) |
+| 20  |   ⭐   |   ⭐  | [Link](./src/day-20/index.ts) | [Day 20](https://adventofcode.com/2024/day/20) |
 | 21  |        |        |                               | [Day 21](https://adventofcode.com/2024/day/21) |
 | 22  |        |        |                               | [Day 22](https://adventofcode.com/2024/day/22) |
 | 23  |        |        |                               | [Day 23](https://adventofcode.com/2024/day/23) |

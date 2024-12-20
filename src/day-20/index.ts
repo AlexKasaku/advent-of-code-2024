@@ -1,6 +1,6 @@
 import { parseLines, readInput } from 'io'
 import { log, debug } from 'log'
-import { Grid, Position } from 'utils/grid'
+import { Grid, manhattanDistance, Position } from 'utils/grid'
 import toSum from 'utils/toSum';
 
 const input = await readInput('day-20')
@@ -81,7 +81,7 @@ export const part1 = () => {
       const neighbourSpaces = grid.getNeighbours(neighbour).filter(s => !s.isWall && s != stepOnRoute);
 
       for (const finalSpace of neighbourSpaces) {
-        const saving = (finalSpace.step ?? 0) - (stepOnRoute.step ?? 0) - 2;
+        const saving = (finalSpace.step!) - (stepOnRoute.step!) - 2;
 
         if (saving > 0)
           combos.set(saving, (combos.get(saving) ?? 0) + 1);
@@ -95,5 +95,30 @@ export const part1 = () => {
 
 export const part2 = () => {
   const { grid, start, end } = parseInput()
-  return 0
+
+  // Set steps
+  const stepsOnRoute = updateGridSteps(grid, start, end);
+
+  const desiredSaving = 100;
+  const combos = new Map<number, number>();
+
+  // Now find jumps that would increase steps.
+  for (const stepOnRoute of stepsOnRoute) {
+    // Go through each step on the route and see where you could leap to, count it if it
+    // increases the step counter by at least X
+
+    // Find all spaces reachable in 20 moves, and the distance they are away. This time only record them 
+    // if they will save us the desiredSaving.
+    const reachableSpaces = grid.getWithinDistance(stepOnRoute, 20).filter(s => !s.isWall && s != stepOnRoute);
+
+    for (const finalSpace of reachableSpaces) {
+      const saving = (finalSpace.step ?? 0) - (stepOnRoute.step ?? 0) - manhattanDistance(stepOnRoute, finalSpace);
+
+      if (saving > 0)
+        combos.set(saving, (combos.get(saving) ?? 0) + 1);
+    }
+
+  }
+
+  return combos.entries().map(([saving, count]) => saving >= desiredSaving ? count : 0).reduce(toSum)
 }
