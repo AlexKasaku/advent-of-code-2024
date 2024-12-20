@@ -100,25 +100,26 @@ export const part2 = () => {
   const stepsOnRoute = updateGridSteps(grid, start, end);
 
   const desiredSaving = 100;
-  const combos = new Map<number, number>();
+  let count = 0;
 
-  // Now find jumps that would increase steps.
+  // Go through each step on the route and see where you could leap to
   for (const stepOnRoute of stepsOnRoute) {
-    // Go through each step on the route and see where you could leap to, count it if it
-    // increases the step counter by at least X
 
-    // Find all spaces reachable in 20 moves, and the distance they are away. This time only record them 
-    // if they will save us the desiredSaving.
-    const reachableSpaces = grid.getWithinDistance(stepOnRoute, 20).filter(s => !s.isWall && s != stepOnRoute);
+    // Find all spaces from the current space that are:
+    // - Reachable in 20 moves
+    // - Not a wall
+    // - Not the current step
+    // - Will save us at least the desiredSaving by jumping there
+    const predicate = (space: Space, distance: number) =>
+      !space.isWall &&
+      space != stepOnRoute &&
+      (space.step! - stepOnRoute.step! - distance) >= desiredSaving;
 
-    for (const finalSpace of reachableSpaces) {
-      const saving = (finalSpace.step ?? 0) - (stepOnRoute.step ?? 0) - manhattanDistance(stepOnRoute, finalSpace);
+    const reachableSpaces = grid.getWithinDistance(stepOnRoute, 20, predicate);
 
-      if (saving > 0)
-        combos.set(saving, (combos.get(saving) ?? 0) + 1);
-    }
-
+    // Count those possible positions
+    count += reachableSpaces.length;
   }
 
-  return combos.entries().map(([saving, count]) => saving >= desiredSaving ? count : 0).reduce(toSum)
+  return count;
 }

@@ -148,20 +148,25 @@ export class Grid<T> {
   getSegment = ({ x, y }: Position, width: number, height: number) =>
     this.Values.slice(y, y + height).map((row) => row.slice(x, x + width))
 
-  getWithinDistance = (pos: Position, distance: number): T[] => {
+  getWithinDistance = (pos: Position, maxDistance: number, predicate?: (space: T, distance: number) => boolean): T[] => {
     const within = [];
 
     // Get bounds, capping at 0 / edge.
-    const minY = pos.y - distance < 0 ? 0 : pos.y - distance;
-    const maxY = pos.y + distance >= this.Height ? this.Height - 1 : pos.y + distance;
-    const minX = pos.x - distance < 0 ? 0 : pos.x - distance;
-    const maxX = pos.x + distance >= this.Width ? this.Width - 1 : pos.x + distance;
+    const minY = pos.y - maxDistance < 0 ? 0 : pos.y - maxDistance;
+    const maxY = pos.y + maxDistance >= this.Height ? this.Height - 1 : pos.y + maxDistance;
+    const minX = pos.x - maxDistance < 0 ? 0 : pos.x - maxDistance;
+    const maxX = pos.x + maxDistance >= this.Width ? this.Width - 1 : pos.x + maxDistance;
 
     for (let curY = minY; curY <= maxY; curY++) {
       for (let curX = minX; curX <= maxX; curX++) {
         const curPos = { x: curX, y: curY };
-        if (manhattanDistance(pos, curPos) <= distance) {
-          within.push(this.get(curPos)!);
+        const distance = manhattanDistance(pos, curPos);
+
+        if (distance <= maxDistance) {
+          const space = this.get(curPos)!;
+
+          if (!predicate || predicate(space, distance))
+            within.push(this.get(curPos)!);
         }
       }
     }
