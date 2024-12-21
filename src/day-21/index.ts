@@ -51,8 +51,10 @@ const expandMoves = (moves: string): string => {
 export const part1 = () => {
   const lines = parseInput()
 
+  let total = 0;
   for (const line of lines) {
 
+    const numerical = parseInt(line.substring(0, 3));
     const moves = getMovementPairs(line);
 
     let dirMoves = '';
@@ -60,18 +62,15 @@ export const part1 = () => {
       dirMoves += (numbersMap.get(move)?.[0] ?? '') + 'A';
     }
 
-    debug(dirMoves);
-
     let dirMoves2 = expandMoves(dirMoves);
-
-    debug(dirMoves2);
     let dirMoves3 = expandMoves(dirMoves2);
 
     debug(`${dirMoves3} - ${dirMoves3.length}`);
 
+    total += numerical * dirMoves3.length;
   }
-  // your code goes here
-  return lines.length
+
+  return total;
 }
 
 export const part2 = () => {
