@@ -52,29 +52,85 @@ export const part1 = () => {
   const lines = parseInput()
 
   let total = 0;
+  const iterations = 2;
+
   for (const line of lines) {
 
+    debug(line);
     const numerical = parseInt(line.substring(0, 3));
     const moves = getMovementPairs(line);
 
+    // Get first dir moves
     let dirMoves = '';
     for (const move of moves) {
       dirMoves += (numbersMap.get(move)?.[0] ?? '') + 'A';
     }
 
-    let dirMoves2 = expandMoves(dirMoves);
-    let dirMoves3 = expandMoves(dirMoves2);
+    let finalDirMoves = dirMoves;
+    for (let i = 0; i < iterations; i++) {
+      finalDirMoves = expandMoves(finalDirMoves);
+    }
 
-    debug(`${dirMoves3} - ${dirMoves3.length}`);
+    debug(`${finalDirMoves} - ${finalDirMoves.length}`);
 
-    total += numerical * dirMoves3.length;
+    total += numerical * finalDirMoves.length;
   }
 
   return total;
 }
 
+const getMoveCountCache = new Map<string, number>();
+
+const calculateMoves = (move: string, iterations: number) => {
+
+  const cacheKey = `${move}|${iterations}`;
+
+  if (getMoveCountCache.has(cacheKey))
+    return getMoveCountCache.get(cacheKey)!;
+
+  let requiredMoves = 0;
+
+  const moves = getMovementPairs((dirsMap.get(move)?.[0] ?? '') + 'A');
+
+  for (const move of moves)
+    if (iterations > 1)
+      requiredMoves += calculateMoves(move, iterations - 1);
+    else
+      requiredMoves = moves.length;
+
+  getMoveCountCache.set(cacheKey, requiredMoves);
+  return requiredMoves;
+}
+
 export const part2 = () => {
   const lines = parseInput()
-  // your code goes here
-  return lines.length
+
+  let total = 0;
+  const iterations = 25;
+
+  for (const line of lines) {
+
+    debug(line);
+
+    const numerical = parseInt(line.substring(0, 3));
+    const moves = getMovementPairs(line);
+
+    // Get first dir moves
+    let dirMoves: string[] = [];
+    for (const move of moves) {
+      dirMoves.push(...getMovementPairs((numbersMap.get(move)?.[0] ?? '') + 'A'));
+    }
+
+    // Now need to expand dirMoves 25 times. Except we just want a count of the resulting size,
+    // not all of the moves itself.
+    let requiredMoves = 0;
+    for (const move of dirMoves)
+      requiredMoves += calculateMoves(move, iterations);
+
+    total += numerical * requiredMoves;
+    debug(`${line} = ${numerical} * ${requiredMoves}`);
+
+  }
+
+  return total;
 }
