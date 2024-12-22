@@ -1,4 +1,6 @@
 import { parseLines, readInput } from 'io'
+import { debug } from 'log';
+import { bitwiseConcatBy } from 'utils/bitwiseConcat';
 
 const input = await readInput('day-22')
 
@@ -53,14 +55,13 @@ export const part2 = () => {
   const values = parseInput()
 
   // Stores how many times a given sequence appears in the list
-  const sequenceToString = (val1: number, val2: number, val3: number, val4: number): string => `${val1},${val2},${val3},${val4}`
-  const sequenceTotals = new Map<string, number>();
+  const sequenceTotals = new Map<number, number>();
 
   let iterations = 2000;
 
   for (const value of values) {
 
-    const sequencesSeen = new Set<string>();
+    const sequencesSeen = new Set<number>();
 
     let values = [value % 10];
     let x = value;
@@ -70,16 +71,18 @@ export const part2 = () => {
       const newValue = x % 10;
       values.push(newValue);
 
-      if (values.length > 4 && newValue > 0) {
+      if (values.length > 4) {
 
-        const sequence = sequenceToString(
-          values[values.length - 4] - values[values.length - 5],
-          values[values.length - 3] - values[values.length - 4],
-          values[values.length - 2] - values[values.length - 3],
-          values[values.length - 1] - values[values.length - 2]
+        // Represent the 4 sequence values as a unique single number by bit shifting. This will be much faster for lookups
+        // than strings. Rather than deal with negative numbers we can add on 16.
+        const sequence = bitwiseConcatBy(5,
+          values[values.length - 4] - values[values.length - 5] + 16,
+          values[values.length - 3] - values[values.length - 4] + 16,
+          values[values.length - 2] - values[values.length - 3] + 16,
+          values[values.length - 1] - values[values.length - 2] + 16
         );
 
-        // First time seeing this sequence
+        // If first time seeing this sequence
         if (!sequencesSeen.has(sequence)) {
           sequencesSeen.add(sequence);
           sequenceTotals.set(sequence, (sequenceTotals.get(sequence) ?? 0) + newValue);
