@@ -37,7 +37,7 @@ const getCliques = ({ vertices, neighbours }: Network, maximalOnly: boolean): Se
   const cliques: Set<string>[] = [];
 
   // https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
-  // Basic implementation without pivoting
+  // Basic implementation with pivoting
 
   // algorithm BronKerbosch1(R, P, X) is
   // if P and X are both empty then
@@ -53,7 +53,14 @@ const getCliques = ({ vertices, neighbours }: Network, maximalOnly: boolean): Se
       // then we just push to array if p and x are empty.
       cliques.push(r);
     }
-    for (const vertex of p) {
+
+    // We can prune the set of p to check by choosing a pivot and ignoring the neighbours 
+    // of that vertex. We can only do this if searching for maximal sets as this means skipping
+    // some non-maximal sets.
+    const pivotVertex = p.size > 0 ? [...p.values()][0] : null;
+    const prunedP = maximalOnly && pivotVertex ? p.union(x).difference(neighbours.get(pivotVertex)!) : p;
+
+    for (const vertex of prunedP) {
       const nx = neighbours.get(vertex)!;
       bronKerbosch(
         r.union(new Set<string>([vertex])), // R ⋃ {v}
